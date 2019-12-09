@@ -1,0 +1,24 @@
+
+Имеется массив A = (a_0, .., a_{n-1}).
+Найти (a_i0, ... a_ik), где a_i0 < a_i1 <..< a_ik., где k -
+наибольший.
+
+Динамическое программирование:  формула рекуррентная
+
+\[
+\forall n \forall k L_{nk}
+\]
+
+max length of increasing sequence of
+\[
+a_0...a_{n-1}
+\]
+with last element < a_k
+
+\[
+L_{nk} = 1+L_{n-1}_{n-1}:  a_{n-1} < a_{k}
+\]
+
+\[
+L_{nk} = L_{n-1}_k: a_{n-1} \geq a_{k}
+\]
