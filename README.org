@@ -1,29 +1,34 @@
-* lis-dynamic
+* Algorithm Implementations
 
-Longest Increasing Sequence and Longest Alternating sequence using Dynamic Programming with Java.
+** lis-dynamic
 
-** Complexity
-\[
-O(n^2)
-\]
+ Longest Increasing Sequence and Longest Alternating sequence using Dynamic Programming with Java.
 
-* lis-cpp
+*** Complexity
+ \[
+ O(n^2)
+ \]
 
-Longest Alternating Sequence
+*** Reference
+https://www.youtube.com/watch?v=fV-TF4OvZpk
 
-** using dynamic programming
+** lis-cpp
 
-[[./lis-cpp/dynamic.h]]
+ Longest Alternating Sequence
 
-\[
-O(n^2)
-\]
+*** using dynamic programming
+
+ [[./lis-cpp/dynamic.h]]
+
+ \[
+ O(n^2)
+ \]
 
 
-** using linear method (finding points where the gradient changes)
+*** using linear method (finding points where the gradient changes)
 
-[[./lis-cpp/sequence.h]]
+ [[./lis-cpp/sequence.h]]
 
-\[
-O(n)
-\]
+ \[
+ O(n)
+ \]
