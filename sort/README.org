@@ -1,0 +1,83 @@
+* Различные алгоритмы сортировки
+
+** Merge sort
+Состоит из двух этапов: split и merge
+
+Мы делим массив на куски рекурсивно до base case (__baseWidth__) (например, размером 1),
+тогда массив размера 8 будет разделен 3 раза 8 -> 4 -> 2 -> 1.
+
+Мы знаем, что массивы размера base case отсортированы. Как?
+Либо это массивы из одного элемента, либо заранее отсортированные другим алгоритмом
+массивы.
+
+*** реализации
+
+#+NAME: naivemerge
+**** naive merge
+
+[[./mergesort.cpp]]
+
+#+NAME: binsearchmerge
+****  merge using binary search
+
+[[./MergeSortBinarySearch.cpp]]
+
+
+*** split
+
+Только в [[top-to-bottom подход][рекурсии]], делит массивы пополам вплоть до размера, про который мы знаем, что
+все массивы этого размера отсортированы
+
+
+
+*** top-to-bottom подход
+Наивный подход с рекурсией - не реализован.
+
+#+BEGIN_SRC c
+void sort(int* first, int* last) {
+int len = last - first + 1;
+
+if (len == 1) {
+return;
+}
+sort(fist, first+ (len / 2));
+sort(first + (len / 2) - 1, fist + len - 1);
+merge(first, first + (len / 2) - 1, first + (len / 2) , first + len - 1);
+}
+
+void merge(int* seq1start, int* seq1end, int* seq2start, int* seq2end) {
+//memory allocate
+//search for each element in the smaller sequence as to where to insert
+// in a longer sequence.
+//move everything back to normal.
+}
+
+#+END_SRC
+
+
+*** bottom-up подход
+2 for loops.
+
+Внешний for "i" loop итерирует по массиву c шагом x2  O(log n)
+
+i - ширина уже отсортированного массива
+
+Внутренний с шагом +1 j += 2i
+
+во внутреннем мы делаем merge(array, j, j+i, j+2i).
+
+merge использует:
+
+1) [[naivemerge][наивный подход]]
+2) [[binsearchmerge][бинарный поиск]]
+
+*** notes
+Эффективен при считывании с жесткого диска.
+
+Тогда считываем с диска куски из файла размером с возможную
+оперативную память M, сортируем их и записываем обратно
+
+Тогда получаем куски размера М сортированные. Дальше применяем merge
+sort.
+
+Поиск минимума с использованием [[Heap]].
