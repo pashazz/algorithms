@@ -1,6 +1,9 @@
 * Различные алгоритмы сортировки
 
 ** Merge sort
+
+O(nlogn)
+
 Состоит из двух этапов: split и merge
 
 Мы делим массив на куски рекурсивно до base case (__baseWidth__) (например, размером 1),
@@ -12,13 +15,15 @@
 
 *** реализации
 
-#+NAME: naivemerge
-**** naive merge
 
+**** naive merge
+#+NAME: naivemerge
 [[./mergesort.cpp]]
 
-#+NAME: binsearchmerge
+
+
 ****  merge using binary search
+#+NAME: binsearchmerge
 
 [[./MergeSortBinarySearch.cpp]]
 

@@ -32,3 +32,11 @@ https://www.youtube.com/watch?v=fV-TF4OvZpk
  \[
  O(n)
  \]
+
+** sort
+
+see [[./sort/README.org]]
+
+** quicksort
+
+Quicksort java implementation with random pivot - O(nlogn) complexity.
