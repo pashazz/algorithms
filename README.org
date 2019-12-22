@@ -39,4 +39,39 @@ see [[./sort/README.org]]
 
 ** quicksort
 
-Quicksort java implementation with random pivot - O(nlogn) complexity.
+Quicksort java implementation with random pivot - O(nlogn) complexity on average.
+
+
+
+*** TODO eliminate tail recursion like:
+
+Оценка по памяти будет O(log n) вместо O(n).
+
+#+BEGIN_SRC cpp
+struct Window {
+vector<T> *vec;
+size_t begin;
+size_t end;
+
+size_t size() {
+return end - begin;
+}
+
+Window(vec, begin, end) :vec(vec),begin(begin),end(end){}
+
+}
+
+std::pair<Window, Window> qsort(Window a) {
+while (a.size() > 1) {
+left, right = partition(a, pivot);
+if (left.size() > right.size()) {
+qsort(right);
+left = a;
+} else {
+qsort(left);
+right = a;
+}
+}
+#+END_SRC
+
+Здесь рекурсия идет только по меньшему поддереву, а, поскольку высота меньшего отрезка максимум половина от данного отрезка, то высота дерева рекурсии будет log n.
