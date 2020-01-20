@@ -3,3 +3,6 @@
 **/*.class
 **/ltximg
 **/cmake-build-*
+**/.gradle
+**/build
+**/\#*\#

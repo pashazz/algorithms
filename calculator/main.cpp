@@ -28,8 +28,9 @@ void evaluate(stack<Operator*>&  ops, stack<double>& values, int priority);
 
 int main() {
     //Get only one line
-    string line = "(1+1)*3-(4-3)^2"; //2*3-1 = 5
+    //string line = "(1+1)*3-(4-3)^2"; //2*3-1 = 5
     //string line = "2+2";
+    string line = "1+1*3-(4-3)^2"; //2*3-1 = 5
     //getline(cin, line);
     cout << line << endl;
     double val = calculate(line);
@@ -106,7 +107,7 @@ void evaluate(stack<Operator*> &ops, stack<double> &values, int priority) {
         values.push(oper->apply(leftValue, rightValue));
         delete oper;
         cout << "evaluate: Push: " << leftValue << " " << oper->toString()  << " " << rightValue << " equals " << values.top() << endl;
-    }c
+    }
 
 }
 

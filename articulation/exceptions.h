@@ -1,0 +1,10 @@
+//
+// Created by Pasha on 13/01/2020.
+//
+
+#ifndef ARTICULATION_EXCEPTIONS_H
+#define ARTICULATION_EXCEPTIONS_H
+
+
+
+#endif //ARTICULATION_EXCEPTIONS_H
