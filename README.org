@@ -79,5 +79,8 @@ right = a;
 ** calculator
 
 Calculate a math expression
+** graph-bridge
+
+Find a bridge in a graph
 ** maze
 Find a path in a maze, destroying the minimum number of walls
