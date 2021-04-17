@@ -1,20 +1,28 @@
 //
-// Created by Pasha on 15.04.2020.
+// Created by Pasha on 13.04.2020.
 //
 
-#ifndef MAZE_GRAPH_H
-#define MAZE_GRAPH_H
+#ifndef MAZE_WEIGHEDGRAPH_H
+#define MAZE_WEIGHEDGRAPH_H
 
-using EdgeSet = set<Edge*, EdgeComparator>;
-using EdgeMap = map<coordinates, Edge*>;
+#include <string>
+#include <map>
+#include <set>
+#include "constants.h"
+#include "Edge.h"
+
+using namespace std;
 
 
 
-class Graph {
+
+class WeighedGraph  {
+    using EdgeSet = set<Edge*, EdgeComparator>;
+    using EdgeMap = map<coordinates, Edge*>;
+
 public:
     void addVertex(size_t vertex);
     void addEdge(Edge *e);
-    string toString();
 
     map<size_t, EdgeSet> getAdjList() const {
         return adjList;
@@ -39,4 +47,6 @@ protected:
 };
 
 
-#endif //MAZE_GRAPH_H
+
+
+#endif //MAZE_WEIGHEDGRAPH_H

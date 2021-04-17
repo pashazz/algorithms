@@ -8,7 +8,8 @@
 
 #include <iostream>
 #include "maze.h"
-
+#include "constants.h"
+#include "Edge.h"
 
 
 Maze::Maze() {
@@ -85,60 +86,142 @@ int Maze::symbolToCode(char c, int i, int j ) {
     }
 }
 
+/** Use a DFS algorithm to find component connections */
+
 void Maze::goFind() {
-    //Traverse every row: remove bars
-    for (int i = 0; i < data.size(); i += 2) {
-        //We won't touch rows 1, 3, etc as they won't contain BARS
-        for (int j = 1; j < data[i].size(); j+= 2) {
-            //We won't touch cols 0, 2, etc as they wont contain BARS either.
-            assert(data[i][j] >= 0 || data[i][j] == SYMBOL_BAR);
-            if (data[i][j] == SYMBOL_BAR) {
-                assert(data[i][j-1] >= 0);
-                assert(data[i][j+1] >= 0);
-                if (data[i][j-1] != data[i][j+1]) {
-                    if (data[i][j-1] < data[i][j+1]) {
-                        connect(data[i][j-1],
-                                coordinates(i, j+1), coordinates(i, j));
-
-                    } else {
-                        connect(data[i][j+1],
-                                coordinates (i, j-1), coordinates(i,j));
-                    }
-                }
-            }
-        }
-    }
-
-    //Traverse every column: remove minuses
-
-    for (int j = 0; j < data[0].size(); j += 2) {
-        //We won't touch columns 1, 3 etc as they are PLUSes
-        for (int i = 1; i < data.size(); i += 2) {
-            //We won't touch rows 0, 2 etc as they're already processed
-            assert(data[i][j] >=0 || data[i][j] == SYMBOL_MINUS);
-            if (data[i][j] == SYMBOL_MINUS) {
-                assert(data[i-1][j] >= 0);
-                assert(data[i+1][j] >= 0);
-                if (data[i-1][j] != data[i+1][j]) {
-                    if (data[i-1][j] < data[i+1][j]) {
-                        connect(data[i-1][j], coordinates(i+1, j), coordinates(i, j));
-
-                    } else {
-                        connect(data[i+1][j], coordinates(i-1, j), coordinates(i, j));
-                    }
+    visited.clear();
+    visited.resize(data.size());
+    coordinates source;
+    bool sourceFound = false;
+    for(size_t i = 0; i < data.size(); ++i) {
+        visited[i].clear();
+        visited[i].resize(data[i].size());
+        if (!sourceFound)
+            for (size_t j = 0; j < data.size(); ++j) {
+                if (data[i][j] == 0) {
+                    source.first = i;
+                    source.second = j;
+                    sourceFound = true;
+                    break;
                 }
             }
 
-        }
     }
+
+    if (mazeZonesGraph) {
+        delete mazeZonesGraph;
+    }
+    mazeZonesGraph = new WeighedGraph();
+    bfsBuildWeights(source);
+
+
+}
+
+void Maze::bfsBuildWeights(coordinates source) {
+    visited[source.first][source.second] = true;
+    assert(data[source.first][source.second] == 0);
+    bfsAddChildren(new TraversableVertex(source, nullptr, 0));
+    while (!bfsQueue.empty()) {
+        auto next = bfsQueue.front();
+        bfsQueue.pop();
+        auto vertex = buildWeights(next->coords, next->path, next->componentIndex);
+        if (vertex) {
+            bfsAddChildren(vertex);
+        }
+        delete next;
+    }
+}
+
+void Maze::bfsAddChildren(TraversableVertex *vertex) {
+    //cout << "Add children for "  << vertex->coords.first << " " << vertex->coords.second << endl;
+    if (vertex->coords.first < data.size() - 1) {
+        bfsQueue.push(new TraversableVertex(coordinates(vertex->coords.first + 1,
+                vertex->coords.second), vertex->path, vertex->componentIndex));
+    }
+    if (vertex->coords.first > 0) {
+        bfsQueue.push(new TraversableVertex(coordinates(vertex->coords.first - 1,
+                vertex->coords.second), vertex->path, vertex->componentIndex));
+    }
+
+    if (vertex->coords.second < data[vertex->coords.first].size() - 1) {
+        bfsQueue.push(new TraversableVertex(coordinates(vertex->coords.first,
+                vertex->coords.second + 1), vertex->path, vertex->componentIndex));
+    }
+
+    if (vertex->coords.second > 0) {
+        bfsQueue.push(new TraversableVertex(coordinates(vertex->coords.first,
+                vertex->coords.second - 1), vertex->path, vertex->componentIndex));
+    }
+
+}
+
+/**
+ * Traverses the maze creating a graph structure, whose vertices are the maze's connected components
+ * and edges are paths through walls that need to be broken
+ * @param coords
+ * @param path
+ * @param currentComponentIndex
+ * @return
+ */
+TraversableVertex * Maze::buildWeights(coordinates coords, Path *path, int currentComponentIndex) {
+    int code = data[coords.first][coords.second];
+    bool _visited = false;
+    if (visited[coords.first][coords.second]) {
+        // If we've visited this vertex, check the path. If it does not contain these coordinates, we may enter (no cycles)
+        // If path is null we can not enter as we're just wandering around in the same component
+
+        if (!path)
+            return nullptr;
+
+        //cout << "Candidate " << coords.first << " " << coords.second << " passed path nullify test" << endl;
+        auto myPath = path;
+        while (myPath) {
+            if (myPath->coords == coords) {
+                //cout << "path test failed" << endl;
+                return nullptr;
+            }
+            myPath = myPath->parent;
+        }
+        cout << "Candidate " << coords.first << " " << coords.second << " passed path test" << endl;
+        if (code == currentComponentIndex) { //we're back into the empty room of the same component, nothing to do there.
+            //cout << "code test failed: code " << code  << endl;
+            return nullptr;
+        }
+        //cout << "Entering already visited cell " << coords.first <<  " " << coords.second << endl;
+        _visited = true;
+    }
+
+    visited[coords.first][coords.second] = true;
+
+
+    if (code == SYMBOL_PLUS) {
+        return nullptr; //Unbreakable barrier
+    }
+
+    if (code == SYMBOL_BAR || code == SYMBOL_MINUS) {
+            path = new Path(path, coords);
+
+        return new TraversableVertex(coords, path, currentComponentIndex);
+    } else {
+        if (code >=0 && code != currentComponentIndex) { // We found an edge
+            assert(path);
+            mazeZonesGraph->addEdge(new Edge (currentComponentIndex, code, path->weight, path));
+            path = nullptr;
+            currentComponentIndex = code;
+        } else {
+            assert(code >= 0);
+        }
+        return _visited ? nullptr :  new TraversableVertex(coords, path, currentComponentIndex);
+    }
+
 }
 
 void Maze::connect (int component, coordinates targetCoords, coordinates wallCoords) {
-    dfs(targetCoords, component);
+    dfsConnect(targetCoords, component);
     data[wallCoords.first][wallCoords.second] = component;
 }
 
-void Maze::dfs(coordinates coords, int component) {
+void Maze::dfsConnect(coordinates coords, int component) {
     if (data[coords.first][coords.second] == component) {
         return;
     }
@@ -146,16 +229,16 @@ void Maze::dfs(coordinates coords, int component) {
     data[coords.first][coords.second] = component;
     if (coords.first > 0 && data[coords.first - 1][coords.second] >= 0) {
 
-        dfs(coordinates(coords.first - 1, coords.second), component);
+        dfsConnect(coordinates(coords.first - 1, coords.second), component);
     }
     if (coords.first < data.size() - 1 && data[coords.first + 1][coords.second] >= 0) {
-        dfs(coordinates(coords.first + 1, coords.second), component);
+        dfsConnect(coordinates(coords.first + 1, coords.second), component);
     }
     if (coords.second > 0 && data[coords.first][coords.second - 1] >= 0) {
-        dfs(coordinates(coords.first, coords.second - 1), component);
+        dfsConnect(coordinates(coords.first, coords.second - 1), component);
     }
     if (coords.second < data[coords.first].size() - 1 && data[coords.first][coords.second + 1] >= 0 ) {
-        dfs(coordinates(coords.first, coords.second + 1), component);
+        dfsConnect(coordinates(coords.first, coords.second + 1), component);
     }
 }
 
@@ -210,6 +293,9 @@ ostream &printHeader(ostream &out, const Maze &maze) {
     out << "\n";
     return out;
 }
+
+
+
 
 
 

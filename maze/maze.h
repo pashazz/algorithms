@@ -5,22 +5,19 @@
 #ifndef MAZE_MAZE_H
 #define MAZE_MAZE_H
 
-static const int SYMBOL_PLUS = -3;
-
-static const int SYMBOL_MINUS = -2;
-
-static const int SYMBOL_BAR = -1;
-
+#include "constants.h"
 #include <vector>
 #include <istream>
 #include <set>
 #include <utility>
 #include <queue>
 #include <map>
+#include "WeighedGraph.h"
+#include "Edge.h"
 
 using namespace std;
 
-using coordinates = pair<int, int>;
+
 
 
 
@@ -63,39 +60,22 @@ using coordinates = pair<int, int>;
  *
  */
 
+#include <queue>
+#include <map>
+#include <set>
+
 /**
-ostream& operator<< (ostream &out, coordinates c) {
-    out << c.first <<  "; " << c.second;
-    return  out;
-}
+ * Represents a path chunk within walls
+ */
 
-struct Path {
+struct TraversableVertex {
+    TraversableVertex(coordinates coords, Path* path, int componentIndex)
+    :coords(coords), path(path), componentIndex(componentIndex) {}
     coordinates coords;
-    Path *parent;
-    int weight;
-    Path(Path *parent, coordinates c) : coords(c), parent(parent) {
-        if (parent) {
-            weight = parent->weight + 1;
-        } else {
-            weight = 1;
-        }
-    }
-};
-struct Edge {
-    Path * path = nullptr;
-    friend bool operator<(const Edge &lhs, const Edge &rhs) {
-        return lhs.path->weight < rhs.path->weight;
-    }
-    Path * addPath(coordinates c) {
-        auto oldPath = path;
-        auto newPath = new Path(oldPath, c);
-        path = newPath;
-        return path;
-    }
-
+    Path *path;
+    int componentIndex;
 };
 
-**/
 
 class Maze {
 public:
@@ -109,27 +89,31 @@ public:
 
     };
 
+    WeighedGraph* getGraph() const {
+        return mazeZonesGraph;
+    };
+
 protected:
     vector<vector<int>> data;
     vector<vector<bool>> visited;
 
 
-
     void goFind();
+
+    void bfsBuildWeights(coordinates source);
+    void bfsAddChildren(TraversableVertex *vertex);
+    TraversableVertex *buildWeights(coordinates coords, Path *path, int currentComponentIndex);
 
 //    void bfs();
 
-//    void addGoodNodesFor(coordinates node);
+
 
     void connect (int component, coordinates targetCoords, coordinates wallCoords);
-    void dfs(coordinates coords, int component);
+    void dfsConnect(coordinates coords, int component);
 
 
-    //queue<coordinates> bfsQueue;
-    //coordinates source;
-    //map<coordinates, coordinates> parents; //These are visited edges
+    queue<TraversableVertex*> bfsQueue;
 
-    //set<Edge> edges; //These are only between components
     friend ostream& operator<<(ostream &out, const Maze& maze);
     friend ostream& printHeader(ostream &out, const Maze& maze);
 
@@ -153,9 +137,7 @@ protected:
      */
     int counter = -1;
 
-    /**
-     * Initializes the bfs algorithm
-     */
+    WeighedGraph *mazeZonesGraph = nullptr;
 
 
 
